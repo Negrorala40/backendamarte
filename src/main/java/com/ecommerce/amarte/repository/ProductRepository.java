@@ -1,28 +1,22 @@
 package com.ecommerce.amarte.repository;
 
-
-
+import com.ecommerce.amarte.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import com.ecommerce.amarte.entity.Product;
+
+import java.util.List;
 
 @Repository
-public interface ProductRepository extends JpaRepository <Product, Long> {
-    // Filtrar por género (Hombre/Mujer)
-    Page<Product> findByGender(String gender, Pageable pageable);
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    // Método para buscar productos por categoría
+    List<Product> findByCategoryId(Long categoryId);
 
-    // Filtrar por categoría específica
-    Page<Product> findByCategoryName(String type, Pageable pageable);
+    // Método para buscar productos por género
+    List<Product> findByGender(String gender);
 
-    // Filtrar por género y categoría (Superior/Inferior)
-    Page<Product> findByGenderAndCategoryName(String gender, String type, Pageable pageable);
+    // Método para buscar productos por tipo
+    List<Product> findByType(String type);
 
-    // Filtrar por rango de precios
-    Page<Product> findByPriceBetween(Double minPrice, Double maxPrice, Pageable pageable);
-
-    //filtrar por nombre
-    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
-    
+    // Método para realizar búsquedas por nombre (similar)
+    List<Product> findByNameContainingIgnoreCase(String name);
 }

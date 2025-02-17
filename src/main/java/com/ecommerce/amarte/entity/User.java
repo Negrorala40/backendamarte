@@ -38,7 +38,7 @@ public class User {
     // private String googleAuthenticatorSecret; // Para autenticación con Google
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Addres> addresses;
+    private List<Address> addresses;
 
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

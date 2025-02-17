@@ -44,5 +44,5 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "address_id")
-    private Addres shipingAddress;
+    private Address shipingAddress;
 }

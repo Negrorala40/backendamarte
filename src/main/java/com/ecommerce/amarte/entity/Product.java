@@ -10,8 +10,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,13 +35,13 @@ public class Product {
     private double price;      // Precio
     // private String imageUrl;   // URL de la imagen
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    // @ManyToOne
+    // @JoinColumn(name = "category_id")
+    // private Category category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants;
 
-    @OneToMany(mappedBy = "product")  // Relación inversa: el campo 'product' en Img
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)  // Relación inversa: el campo 'product' en Img
     private List<Img> images;
 }

@@ -35,10 +35,6 @@ public class Product {
     private double price;      // Precio
     // private String imageUrl;   // URL de la imagen
 
-    // @ManyToOne
-    // @JoinColumn(name = "category_id")
-    // private Category category;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants;
 

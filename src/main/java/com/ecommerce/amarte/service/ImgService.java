@@ -1,41 +1,64 @@
 package com.ecommerce.amarte.service;
 
-import java.util.List;
-
+import com.ecommerce.amarte.entity.Img;
+import com.ecommerce.amarte.entity.Product;
+import com.ecommerce.amarte.repository.ImgRepository;
+import com.ecommerce.amarte.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.ecommerce.amarte.entity.Img;
-import com.ecommerce.amarte.repository.ImgRepository;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ImgService {
+
     @Autowired
     private ImgRepository imgRepository;
 
-    // Crear o actualizar una imagen
-    public Img saveOrUpdateImg(Img img) {
+    @Autowired
+    private ProductRepository productRepository;
+
+    // Guardar imagen
+    public Img saveImage(MultipartFile file, Long productId) throws IOException {
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isEmpty()) {
+            throw new IllegalArgumentException("Producto no encontrado");
+        }
+
+        Img img = new Img();
+        img.setFileName(file.getOriginalFilename());
+        img.setFileType(file.getContentType());
+        img.setData(file.getBytes());
+        img.setProduct(productOptional.get());
+
         return imgRepository.save(img);
     }
 
+    // Obtener imagen por ID
+    public Img getImageById(Long id) {
+        return imgRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Imagen no encontrada"));
+    }
+
     // Obtener todas las imágenes de un producto
-    public List<Img> getImgsByProductId(Long productId) {
+    public List<Img> getImagesByProductId(Long productId) {
         return imgRepository.findByProductId(productId);
     }
 
-    // // Obtener una imagen por ID
-    // public Optional<Img> getImgById(Long imgId) {
-    //     return imgRepository.findById(imgId);
-    // }
+    // Actualizar imagen
+    public Img updateImage(Long id, MultipartFile file) throws IOException {
+        Img img = getImageById(id);
+        img.setFileName(file.getOriginalFilename());
+        img.setFileType(file.getContentType());
+        img.setData(file.getBytes());
 
-    // Eliminar una imagen por ID
-    public void deleteImgById(Long imgId) {
-        imgRepository.deleteById(imgId);
+        return imgRepository.save(img);
     }
 
-    // Eliminar todas las imágenes de un producto
-    public void deleteImgsByProductId(Long productId) {
-        List<Img> imgs = imgRepository.findByProductId(productId);
-        imgRepository.deleteAll(imgs);
+    // Eliminar imagen
+    public void deleteImage(Long id) {
+        imgRepository.deleteById(id);
     }
 }

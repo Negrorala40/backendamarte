@@ -1,5 +1,6 @@
 package com.ecommerce.amarte.dto;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -8,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+
+import org.hibernate.annotations.Collate;
 
 @Getter
 @Setter
@@ -25,6 +28,7 @@ public class UserDTO {
 
     @NotBlank(message = "El correo electrónico es obligatorio")
     @Email(message = "Debe ser un email válido")
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Size(min = 10, max = 15, message = "El número de teléfono debe tener entre 10 y 15 caracteres")

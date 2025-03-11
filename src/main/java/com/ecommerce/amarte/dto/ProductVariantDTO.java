@@ -23,4 +23,7 @@ public class ProductVariantDTO {
     @NotNull(message = "El stock no puede estar vacío")
     @Min(value = 0, message = "El stock no puede ser negativo")
     private Integer stock;
+
+    @NotNull(message = "error productid")
+    private Long productId;
 }

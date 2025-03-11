@@ -7,7 +7,9 @@ import com.ecommerce.amarte.entity.Img;
 import com.ecommerce.amarte.entity.Product;
 import com.ecommerce.amarte.entity.ProductGender;
 import com.ecommerce.amarte.entity.ProductVariant;
-import com.ecommerce.amarte.entity.productType;
+import com.ecommerce.amarte.entity.ProductType;
+import com.ecommerce.amarte.exception.InvalidProductDataException;
+import com.ecommerce.amarte.exception.ProductNotFoundException;
 import com.ecommerce.amarte.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,14 +31,14 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    // Obtener producto por ID
+    // 🔄 Corregido: Obtener producto por ID (devuelve Optional<ProductDTO>)
     public Optional<ProductDTO> getProductById(Long id) {
         return productRepository.findById(id)
                 .map(this::convertToDTO);
     }
 
     // Obtener productos por género y tipo
-    public List<ProductDTO> getProductsByGenderAndType(ProductGender gender, productType type) {
+    public List<ProductDTO> getProductsByGenderAndType(ProductGender gender, ProductType type) {
         return productRepository.findByGenderAndTypeOrderByPriceAsc(gender, type).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -44,6 +46,7 @@ public class ProductService {
 
     // Guardar producto
     public ProductDTO saveProduct(ProductDTO productDTO) {
+        validateProductData(productDTO);
         Product product = convertToEntity(productDTO);
         Product savedProduct = productRepository.save(product);
         return convertToDTO(savedProduct);
@@ -51,31 +54,67 @@ public class ProductService {
 
     // Actualizar producto
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
-        return productRepository.findById(id).map(product -> {
-            product.setName(productDTO.getName());
-            product.setDescription(productDTO.getDescription());
-            product.setGender(ProductGender.valueOf(productDTO.getGender()));
-            product.setType(productType.valueOf(productDTO.getType()));
-            product.setPrice(productDTO.getPrice());
+        validateProductData(productDTO);
 
-            // Actualizar variantes
-            product.setVariants(productDTO.getVariants().stream()
-                    .map(this::convertToEntity)
-                    .collect(Collectors.toList()));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Producto con ID " + id + " no encontrado"));
 
-            // Actualizar imágenes
-            product.setImages(productDTO.getImages().stream()
-                    .map(this::convertToEntity)
-                    .collect(Collectors.toList()));
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setGender(getValidGender(productDTO.getGender()));
+        product.setType(getValidType(productDTO.getType()));
+        product.setPrice(productDTO.getPrice());
 
-            Product updatedProduct = productRepository.save(product);
-            return convertToDTO(updatedProduct);
-        }).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        // Actualizar variantes
+        product.setVariants(productDTO.getVariants().stream()
+                .map(this::convertToEntity)
+                .peek(variant -> variant.setProduct(product))
+                .collect(Collectors.toList()));
+
+        // Actualizar imágenes
+        product.setImages(productDTO.getImages().stream()
+                .map(this::convertToEntity)
+                .peek(img -> img.setProduct(product))
+                .collect(Collectors.toList()));
+
+        Product updatedProduct = productRepository.save(product);
+        return convertToDTO(updatedProduct);
     }
 
     // Eliminar producto
     public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new ProductNotFoundException("Producto con ID " + id + " no encontrado");
+        }
         productRepository.deleteById(id);
+    }
+
+    // Validar datos del producto
+    private void validateProductData(ProductDTO productDTO) {
+        if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
+            throw new InvalidProductDataException("El nombre del producto no puede estar vacío");
+        }
+        if (productDTO.getPrice() < 0) {
+            throw new InvalidProductDataException("El precio no puede ser negativo");
+        }
+    }
+
+    // Validar y obtener Enum ProductGender
+    private ProductGender getValidGender(String gender) {
+        try {
+            return ProductGender.valueOf(gender.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidProductDataException("Género inválido: " + gender);
+        }
+    }
+
+    // Validar y obtener Enum ProductType
+    private ProductType getValidType(String type) {
+        try {
+            return ProductType.valueOf(type.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidProductDataException("Tipo inválido: " + type);
+        }
     }
 
     // Convertir entidad a DTO
@@ -98,16 +137,18 @@ public class ProductService {
         product.setId(productDTO.getId());
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
-        product.setGender(ProductGender.valueOf(productDTO.getGender()));
-        product.setType(productType.valueOf(productDTO.getType()));
+        product.setGender(getValidGender(productDTO.getGender()));
+        product.setType(getValidType(productDTO.getType()));
         product.setPrice(productDTO.getPrice());
 
         product.setVariants(productDTO.getVariants().stream()
                 .map(this::convertToEntity)
+                .peek(variant -> variant.setProduct(product))
                 .collect(Collectors.toList()));
 
         product.setImages(productDTO.getImages().stream()
                 .map(this::convertToEntity)
+                .peek(img -> img.setProduct(product))
                 .collect(Collectors.toList()));
 
         return product;
@@ -116,7 +157,6 @@ public class ProductService {
     // Convertir Img a ImgDTO
     private ImgDTO convertToDTO(Img img) {
         return new ImgDTO(img.getId(), img.getFileName(), img.getFileType(), img.getData(), img.getProduct().getId());
-
     }
 
     // Convertir ImgDTO a Img
@@ -131,7 +171,7 @@ public class ProductService {
 
     // Convertir ProductVariant a ProductVariantDTO
     private ProductVariantDTO convertToDTO(ProductVariant variant) {
-        return new ProductVariantDTO(variant.getId(), variant.getSize(), variant.getColor(), variant.getStock());
+        return new ProductVariantDTO(variant.getId(), variant.getSize(), variant.getColor(), variant.getStock(), variant.getProduct().getId());
     }
 
     // Convertir ProductVariantDTO a ProductVariant

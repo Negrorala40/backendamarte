@@ -36,11 +36,9 @@ public class ProductDTO {
     @Positive(message = "El precio debe ser mayor a 0")
     private double price;
 
-    // Lista de variantes del producto
     @NotNull(message = "Las variantes del producto son obligatorias")
     private List<@NotNull ProductVariantDTO> variants;
 
-    // Lista de imágenes del producto
     @NotNull(message = "Las imágenes del producto son obligatorias")
     private List<@NotNull ImgDTO> images;
 }

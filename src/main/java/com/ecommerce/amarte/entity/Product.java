@@ -31,7 +31,7 @@ public class Product {
     private ProductGender gender;
 
     @Enumerated(EnumType.STRING)
-    private productType type;       // Tipo (Ej. "Superior", "Inferior", "Calzado")
+    private ProductType type;       // Tipo (Ej. "Superior", "Inferior", "Calzado")
     private double price;      // Precio
     // private String imageUrl;   // URL de la imagen
 

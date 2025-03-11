@@ -18,7 +18,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;  // Carga usuarios desde la BD
+    private CustomUserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -26,22 +26,17 @@ public class SecurityConfig {
                 .csrf().disable()
                 .cors().configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:3000"));  // Cambia según tu frontend
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-                    config.setAllowCredentials(true);
+                    config.setAllowedOrigins(List.of("http://localhost:3000"));  // Permitir todas las rutas de localhost:3000
+                    config.setAllowedMethods(List.of("*"));  // Permitir todos los métodos (GET, POST, etc.)
+                    config.setAllowedHeaders(List.of("*"));  // Permitir todos los headers
+                    config.setAllowCredentials(true);  // Permitir credenciales (cookies, etc.)
                     return config;
                 })
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers(HttpMethod.POST, "/api/addresses", "/api/login").permitAll()  // Permitir registro y login sin autenticación
-                .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("ADMIN", "USER")
-                .requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN")
-                .requestMatchers("/api/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()  // Permitir todas las solicitudes sin autenticación
                 .and()
-                .httpBasic();  // Mantener autenticación básica
+                .httpBasic();  // Mantener autenticación básica si se necesita
 
         return http.build();
     }
@@ -53,6 +48,6 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return userDetailsService;  // Usar el servicio personalizado
+        return userDetailsService;
     }
 }

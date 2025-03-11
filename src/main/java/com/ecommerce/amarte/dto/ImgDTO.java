@@ -20,11 +20,7 @@ public class ImgDTO {
     private String fileName; // Nombre del archivo de la imagen
 
     @NotBlank(message = "El tipo de archivo no puede estar vacío")
-    @Pattern(regexp = "^(image/jpeg|image/png|image/gif)$", message = "Formato de imagen no válido. Solo se permiten JPEG, PNG o GIF")
-    private String fileType; // Tipo de archivo (ej. image/jpeg, image/png)
-
-    @NotNull(message = "La imagen no puede estar vacía")
-    private byte[] data; // Datos binarios de la imagen
+    private String imageUrl;
 
     @NotNull(message = "Debe especificar un producto al que pertenece la imagen")
     private Long productId; // ID del producto asociado

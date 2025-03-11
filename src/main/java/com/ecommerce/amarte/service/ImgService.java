@@ -30,8 +30,7 @@ public class ImgService {
 
         Img img = new Img();
         img.setFileName(file.getOriginalFilename());
-        img.setFileType(file.getContentType());
-        img.setData(file.getBytes());
+        img.setImageUrl(file.getContentType());
         img.setProduct(productOptional.get());
 
         return imgRepository.save(img);
@@ -51,8 +50,7 @@ public class ImgService {
     public Img updateImage(Long id, MultipartFile file) throws IOException {
         Img img = getImageById(id);
         img.setFileName(file.getOriginalFilename());
-        img.setFileType(file.getContentType());
-        img.setData(file.getBytes());
+        img.setImageUrl(file.getContentType());
 
         return imgRepository.save(img);
     }

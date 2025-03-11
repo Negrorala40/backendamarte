@@ -156,7 +156,7 @@ public class ProductService {
 
     // Convertir Img a ImgDTO
     private ImgDTO convertToDTO(Img img) {
-        return new ImgDTO(img.getId(), img.getFileName(), img.getFileType(), img.getData(), img.getProduct().getId());
+        return new ImgDTO(img.getId(), img.getFileName(), img.getImageUrl(), img.getProduct().getId());
     }
 
     // Convertir ImgDTO a Img
@@ -164,8 +164,7 @@ public class ProductService {
         Img img = new Img();
         img.setId(imgDTO.getId());
         img.setFileName(imgDTO.getFileName());
-        img.setFileType(imgDTO.getFileType());
-        img.setData(imgDTO.getData());
+        img.setImageUrl(imgDTO.getImageUrl());
         return img;
     }
 

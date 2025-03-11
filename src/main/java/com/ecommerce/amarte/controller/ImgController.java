@@ -3,7 +3,6 @@ package com.ecommerce.amarte.controller;
 import com.ecommerce.amarte.entity.Img;
 import com.ecommerce.amarte.service.ImgService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,13 +32,9 @@ public class ImgController {
 
     // Obtener imagen por ID
     @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
+    public ResponseEntity<String> getImage(@PathVariable Long id) {
         Img img = imgService.getImageById(id);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", img.getFileType());
-
-        return new ResponseEntity<>(img.getData(), headers, HttpStatus.OK);
+        return ResponseEntity.ok(img.getImageUrl()); // Retorna la URL en lugar de bytes
     }
 
     // Obtener imágenes de un producto

@@ -16,11 +16,9 @@ public class Img {
     private Long id; // ID de la imagen
 
     private String fileName; // Nombre del archivo de la imagen
-    private String fileType; // Tipo de archivo (ej. image/jpeg, image/png)
-
-    private byte[] data; // Aquí se guardan los bytes de la imagen
+    private String imageUrl; // Tipo de archivo (ej. image/jpeg, image/png)
 
     @ManyToOne
-    @JoinColumn(name = "product_id") // Definimos el nombre de la columna que hace referencia a Product
+    @JoinColumn(name = "product_id", nullable = false) // Definimos el nombre de la columna que hace referencia a Product
     private Product product; // Relación con el Producto
 }

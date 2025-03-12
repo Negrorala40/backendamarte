@@ -31,6 +31,9 @@ public class UserDTO {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @NotBlank
+    private String password;
+
     @Size(min = 10, max = 15, message = "El número de teléfono debe tener entre 10 y 15 caracteres")
     @Pattern(regexp = "\\d{10,15}", message = "El teléfono debe contener solo números y tener entre 10 y 15 dígitos")
     private String phone;

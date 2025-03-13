@@ -3,6 +3,7 @@ package com.ecommerce.amarte.service;
 import com.ecommerce.amarte.entity.User;
 import com.ecommerce.amarte.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import com.ecommerce.amarte.exception.EmailAlreadyExistsException;
@@ -14,26 +15,43 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder(); // Instancia de BCrypt
     }
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    // Crear o actualizar un usuario
+    // Crear o actualizar un usuario con contraseña encriptada
     public User saveOrUpdateUser(User user) {
         if (user == null || !StringUtils.hasText(user.getEmail())) {
             throw new IllegalArgumentException("El correo electrónico es obligatorio.");
         }
-        // Verificar si el correo electrónico ya está registrado
+
+        // Verificar si el correo ya está registrado
         if (existsByEmail(user.getEmail())) {
             throw new EmailAlreadyExistsException("El correo electrónico ya está registrado.");
-        }        
+        }
+
+        // Encriptar la contraseña antes de guardar
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return userRepository.save(user);
+    }
+
+    // Autenticar usuario con email y contraseña
+    public boolean authenticateUser(String email, String rawPassword) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return passwordEncoder.matches(rawPassword, user.getPassword()); // Comparar contraseña encriptada
+        }
+        return false;
     }
 
     // Obtener todos los usuarios
@@ -78,5 +96,4 @@ public class UserService {
         user.get().getAddresses().clear();  // Elimina las direcciones del usuario
         userRepository.save(user.get());   // Guardar los cambios
     }
-    
 }

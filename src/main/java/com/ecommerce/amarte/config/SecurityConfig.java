@@ -32,8 +32,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()  // ✅ Permitir registro sin autenticación
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()  // ✅ Permitir inicio de sesión sin autenticación
-                .requestMatchers(HttpMethod.POST, "/api/").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
                 .anyRequest().authenticated()  // 🔒 Requiere autenticación para otras rutas
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

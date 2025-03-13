@@ -26,13 +26,13 @@ public class User {
     private String password;  // Contraseña encriptada
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Address> addresses;
+    private Set<Address> addresses;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;  // Lista de pedidos realizados por el usuario
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CartItem> cartItems;  // Productos en el carrito
+    private Set<CartItem> cartItems;  // Productos en el carrito
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

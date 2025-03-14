@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()  // ✅ Permitir inicio de sesión sin autenticación
                 .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/cart/add").authenticated()
                 .anyRequest().authenticated()  // 🔒 Requiere autenticación para otras rutas
                 .and()
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

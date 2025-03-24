@@ -1,6 +1,7 @@
 package com.ecommerce.amarte.service;
 
 import com.ecommerce.amarte.entity.UserRole;
+import com.ecommerce.amarte.entity.UserRoleEnum;
 import com.ecommerce.amarte.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,15 @@ public class UserRoleService {
         return userRoleRepository.findAll();
     }
 
-    // Obtener un rol por nombre
-    public Optional<UserRole> getRoleByName(String role) {
+    // Obtener un rol por ENUM en lugar de String
+    public Optional<UserRole> getRoleByEnum(UserRoleEnum role) {
         return userRoleRepository.findByRole(role);
     }
 
-    // Guardar un rol (solo si lo necesitas para inicializar los roles)
-    public UserRole saveRole(UserRole role) {
-        return userRoleRepository.save(role);
+    // Guardar un rol (solo si es necesario para inicializar)
+    public UserRole saveRole(UserRoleEnum roleEnum) {
+        // Evita duplicados: si ya existe, lo retorna
+        return userRoleRepository.findByRole(roleEnum)
+                .orElseGet(() -> userRoleRepository.save(new UserRole(roleEnum)));
     }
 }

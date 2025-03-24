@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "roles")  // Nombre de la tabla
+@Table(name = "roles")
 @Data
 @NoArgsConstructor
 public class UserRole {
@@ -14,13 +14,11 @@ public class UserRole {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING) // Almacena el enum como texto en la BD
     @Column(nullable = false, unique = true)
-    private String role;  // Ej: "ADMIN", "CUSTOMER"
+    private UserRoleEnum role;
 
-    // Constructor adicional
-    public UserRole(String role) {
+    public UserRole(UserRoleEnum role) {
         this.role = role;
     }
-
-
 }

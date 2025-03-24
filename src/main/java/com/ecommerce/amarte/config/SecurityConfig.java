@@ -1,7 +1,5 @@
 package com.ecommerce.amarte.config;
 
-import com.ecommerce.amarte.security.CustomUserDetailsService;
-import com.ecommerce.amarte.config.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,32 +10,43 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
+    private final CorsConfigurationSource corsConfigurationSource;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtFilter jwtFilter) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(JwtFilter jwtFilter, CorsConfigurationSource corsConfigurationSource) {
         this.jwtFilter = jwtFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .cors().and()  // Ahora usa la configuración de CorsConfig
+                .cors().configurationSource(corsConfigurationSource) // ✅ Integración con CorsConfig
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 🔒 Seguridad mejorada
+                .and()
                 .authorizeHttpRequests()
+                .requestMatchers("/h2-console/**").permitAll()  // ✅ Permitir acceso a H2 Console
                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()  // ✅ Permitir registro sin autenticación
-                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()  // ✅ Permitir inicio de sesión sin autenticación
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()  // ✅ Permitir login sin autenticación
                 .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/cart/add").authenticated()
                 .anyRequest().authenticated()  // 🔒 Requiere autenticación para otras rutas
                 .and()
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // ✅ Agregamos el filtro JWT
+                .formLogin().disable() // 🔴 Deshabilita autenticación por formulario
+                .httpBasic().disable(); // 🔴 Deshabilita autenticación básica
+
+        // ✅ Permitir que H2 funcione en un iframe.
+        http.headers().frameOptions().sameOrigin();
 
         return http.build();
     }

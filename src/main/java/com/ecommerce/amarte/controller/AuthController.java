@@ -1,7 +1,10 @@
 package com.ecommerce.amarte.controller;
 
 import com.ecommerce.amarte.config.JwtUtil;
+import com.ecommerce.amarte.dto.AuthResponse;
 import com.ecommerce.amarte.dto.LoginDTO;
+import com.ecommerce.amarte.entity.User;
+import com.ecommerce.amarte.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -9,11 +12,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -22,40 +24,43 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final UserService userService;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         try {
-            System.out.println("Intentando autenticar usuario: " + loginDTO.getEmail());
-
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwt = jwtUtil.create(userDetails.getUsername());
 
-            System.out.println("Autenticación exitosa para: " + loginDTO.getEmail());
+            // 🔥 Buscar usuario en la base de datos
+            User user = userService.getUserByEmail(loginDTO.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            // Devolver el token como un JSON sin usar DTO
-            Map<String, String> response = new HashMap<>();
-            response.put("token", jwt);
-            response.put("email", userDetails.getUsername());
+            // 🔥 Obtener roles del usuario
+            List<String> roles = user.getRoles().stream()
+                    .map(role -> role.getRole().name()) // Convertir Enum a String
+                    .collect(Collectors.toList());
 
+            // 🔥 Generar JWT con email y roles
+            String jwt = jwtUtil.create(user.getEmail(), roles);
+
+            // ✅ Enviar respuesta JSON con datos del usuario
             return ResponseEntity.ok()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
-                    .body(response);
+                    .body(new AuthResponse(user.getEmail(), roles, jwt));
 
         } catch (Exception e) {
-            System.out.println("Fallo en la autenticación: " + e.getMessage());
-            return ResponseEntity.status(403).body("Credenciales incorrectas");
+            return ResponseEntity.status(403).body("❌ Credenciales incorrectas");
         }
     }
 }

@@ -1,13 +1,11 @@
 package com.ecommerce.amarte.security;
 
 import com.ecommerce.amarte.entity.User;
-import com.ecommerce.amarte.entity.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserSecurity implements UserDetails {
@@ -21,10 +19,9 @@ public class UserSecurity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole()))  // Aquí el cambio
+                .map(role -> new SimpleGrantedAuthority(role.getRole().name()))  // Convertimos directamente desde Enum
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public String getPassword() {

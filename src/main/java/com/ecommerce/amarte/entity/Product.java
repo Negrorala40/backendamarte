@@ -1,6 +1,7 @@
 package com.ecommerce.amarte.entity;
 
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -32,7 +33,7 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     private ProductType type;       // Tipo (Ej. "Superior", "Inferior", "Calzado")
-    private double price;      // Precio
+    private BigDecimal price;      // Precio
     // private String imageUrl;   // URL de la imagen
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

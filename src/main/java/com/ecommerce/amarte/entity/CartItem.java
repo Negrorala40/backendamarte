@@ -3,6 +3,7 @@ package com.ecommerce.amarte.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -22,8 +23,8 @@ public class CartItem {
     @JoinColumn(name = "product_variant_id")
     private ProductVariant productVariant; // Relación con la variante del producto
 
-    // Método para obtener el precio total de este producto en el carrito
-    public double getTotalPrice() {
-        return this.productVariant.getProduct().getPrice() * this.quantity;
+    // Método corregido para calcular el precio total
+    public BigDecimal getTotalPrice() {
+        return this.productVariant.getProduct().getPrice().multiply(BigDecimal.valueOf(this.quantity));
     }
 }

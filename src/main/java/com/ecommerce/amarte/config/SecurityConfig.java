@@ -28,24 +28,34 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .cors().configurationSource(corsConfigurationSource) // ✅ Integración con CorsConfig
+                .cors().configurationSource(corsConfigurationSource)
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 🔒 Seguridad mejorada
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeHttpRequests()
-                .requestMatchers("/h2-console/**").permitAll()  // ✅ Permitir acceso a H2 Console
-                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()  // ✅ Permitir registro sin autenticación
-                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()  // ✅ Permitir login sin autenticación
-                .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/cart/add").authenticated()
-                .anyRequest().authenticated()  // 🔒 Requiere autenticación para otras rutas
-                .and()
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // ✅ Agregamos el filtro JWT
-                .formLogin().disable() // 🔴 Deshabilita autenticación por formulario
-                .httpBasic().disable(); // 🔴 Deshabilita autenticación básica
+                .authorizeHttpRequests(auth -> auth
+                        // Permisos abiertos
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
 
-        // ✅ Permitir que H2 funcione en un iframe.
+                        // Permisos autenticados
+                        .requestMatchers(HttpMethod.GET, "/api/cart/add").authenticated()
+
+                        // Permisos para ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/{id}").hasRole("ADMIN")
+
+                        // Cualquier otra solicitud requiere autenticación
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin().disable()
+                .httpBasic().disable();
+
+        // Permitir H2 Console en iframe
         http.headers().frameOptions().sameOrigin();
 
         return http.build();

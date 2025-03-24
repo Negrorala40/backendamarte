@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @NoArgsConstructor
@@ -34,7 +35,7 @@ public class ProductDTO {
 
     @NotNull(message = "El precio es obligatorio")
     @Positive(message = "El precio debe ser mayor a 0")
-    private double price;
+    private BigDecimal price;
 
     @NotNull(message = "Las variantes del producto son obligatorias")
     private List<@NotNull ProductVariantDTO> variants;

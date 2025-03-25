@@ -1,9 +1,6 @@
 package com.ecommerce.amarte.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,6 +37,6 @@ public class ProductDTO {
     @NotNull(message = "Las variantes del producto son obligatorias")
     private List<@NotNull ProductVariantDTO> variants;
 
-    @NotNull(message = "Las imágenes del producto son obligatorias")
-    private List<@NotNull ImgDTO> images;
+    @NotEmpty(message = "Las imágenes del producto no pueden estar vacías")
+    private List<ImgDTO> images;
 }

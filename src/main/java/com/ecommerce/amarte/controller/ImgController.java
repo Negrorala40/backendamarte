@@ -19,16 +19,19 @@ public class ImgController {
     @Autowired
     private ImgService imgService;
 
-    // Subir imagen
     @PostMapping("/upload/{productId}")
-    public ResponseEntity<Img> uploadImage(@RequestParam("file") MultipartFile file, @PathVariable Long productId) {
+    public ResponseEntity<Img> uploadImage(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("imageUrl") String imageUrl,
+            @PathVariable Long productId) {
         try {
-            Img savedImage = imgService.saveImage(file, productId);
+            Img savedImage = imgService.saveImage(file, imageUrl, productId);
             return ResponseEntity.ok(savedImage);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
 
     // Obtener imagen por ID
     @GetMapping("/{id}")

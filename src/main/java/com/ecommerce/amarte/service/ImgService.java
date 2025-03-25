@@ -22,7 +22,7 @@ public class ImgService {
     private ProductRepository productRepository;
 
     // Guardar imagen
-    public Img saveImage(MultipartFile file, Long productId) throws IOException {
+    public Img saveImage(MultipartFile file, String imageUrl, Long productId) throws IOException {
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
             throw new IllegalArgumentException("Producto no encontrado");
@@ -30,7 +30,7 @@ public class ImgService {
 
         Img img = new Img();
         img.setFileName(file.getOriginalFilename());
-        img.setImageUrl(file.getContentType());
+        img.setImageUrl(imageUrl); // Asegurar que esta URL viene desde el front y se almacena correctamente
         img.setProduct(productOptional.get());
 
         return imgRepository.save(img);

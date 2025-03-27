@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -43,8 +44,13 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // 🔥 Buscar usuario en la base de datos
-            User user = userService.getUserByEmail(loginDTO.getEmail())
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            Optional<User> optionalUser = userService.getUserByEmail(loginDTO.getEmail());
+
+            if (!optionalUser.isPresent()) {
+                return ResponseEntity.status(404).body("❌ Usuario no encontrado");
+            }
+
+            User user = optionalUser.get();
 
             // 🔥 Obtener roles del usuario
             List<String> roles = user.getRoles().stream()
@@ -54,10 +60,11 @@ public class AuthController {
             // 🔥 Generar JWT con email y roles
             String jwt = jwtUtil.create(user.getEmail(), roles);
 
-            // ✅ Enviar respuesta JSON con datos del usuario
+            // ✅ Respuesta JSON con datos del usuario
+            AuthResponse authResponse = new AuthResponse(user.getId(), roles, jwt);
             return ResponseEntity.ok()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
-                    .body(new AuthResponse(user.getEmail(), roles, jwt));
+                    .body(authResponse);
 
         } catch (Exception e) {
             return ResponseEntity.status(403).body("❌ Credenciales incorrectas");

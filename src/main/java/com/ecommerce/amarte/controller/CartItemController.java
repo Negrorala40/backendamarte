@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -33,7 +34,7 @@ public class CartItemController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addToCart(@RequestParam Long userId, @RequestParam Long productVariantId, @RequestParam int quantity) {
+    public ResponseEntity<Object> addToCart(@RequestParam Long userId, @RequestParam Long productVariantId, @RequestParam int quantity) {
         Optional<User> user = userRepository.findById(userId);
         Optional<ProductVariant> productVariant = productVariantRepository.findById(productVariantId);
 
@@ -47,7 +48,7 @@ public class CartItemController {
         cartItem.setQuantity(quantity);
 
         cartItemRepository.save(cartItem);
-        return ResponseEntity.ok("Producto agregado al carrito.");
+        return ResponseEntity.ok(Map.of("message", "Producto agregado al carrito."));
     }
 
     @DeleteMapping("/remove/{cartItemId}")

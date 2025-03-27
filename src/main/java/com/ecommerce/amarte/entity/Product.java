@@ -1,44 +1,33 @@
 package com.ecommerce.amarte.entity;
 
-
-import java.math.BigDecimal;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @NoArgsConstructor
-@Entity
 @AllArgsConstructor
+@Entity
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // ID del producto
-    
+
     private String name;
     private String description; // Descripción del producto
+
     @Enumerated(EnumType.STRING)
     private ProductGender gender;
 
     @Enumerated(EnumType.STRING)
-    private ProductType type;       // Tipo (Ej. "Superior", "Inferior", "Calzado")
-    private BigDecimal price;      // Precio
-    // private String imageUrl;   // URL de la imagen
+    private ProductType type; // Tipo (Ej. "Superior", "Inferior", "Calzado")
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductVariant> variants;
+    private List<ProductVariant> variants; // Lista de variantes
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)  // Relación inversa: el campo 'product' en Img
-    private List<Img> images;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Img> images; // Lista de imágenes
 }

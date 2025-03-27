@@ -23,8 +23,8 @@ public class CartItem {
     @JoinColumn(name = "product_variant_id")
     private ProductVariant productVariant; // Relación con la variante del producto
 
-    // Método corregido para calcular el precio total
+    // Método corregido para calcular el precio total basado en la variante
     public BigDecimal getTotalPrice() {
-        return this.productVariant.getProduct().getPrice().multiply(BigDecimal.valueOf(this.quantity));
+        return this.productVariant.getPrice().multiply(BigDecimal.valueOf(this.quantity));
     }
 }

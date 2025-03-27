@@ -30,10 +30,6 @@ public class ProductDTO {
     @Size(max = 50, message = "El tipo de producto no puede superar los 50 caracteres")
     private String type;
 
-    @NotNull(message = "El precio es obligatorio")
-    @Positive(message = "El precio debe ser mayor a 0")
-    private BigDecimal price;
-
     @NotNull(message = "Las variantes del producto son obligatorias")
     private List<@NotNull ProductVariantDTO> variants;
 

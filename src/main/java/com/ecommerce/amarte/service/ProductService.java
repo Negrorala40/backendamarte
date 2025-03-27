@@ -53,7 +53,6 @@ public class ProductService {
         product.setDescription(productDTO.getDescription());
         product.setGender(getValidGender(productDTO.getGender()));
         product.setType(getValidType(productDTO.getType()));
-        product.setPrice(productDTO.getPrice());
 
         product.setVariants(productDTO.getVariants().stream()
                 .map(this::convertToEntity)
@@ -80,9 +79,6 @@ public class ProductService {
         if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
             throw new InvalidProductDataException("El nombre del producto no puede estar vacío");
         }
-        if (productDTO.getPrice() == null || productDTO.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidProductDataException("El precio no puede ser negativo");
-        }
     }
 
     private ProductGender getValidGender(String gender) {
@@ -108,7 +104,6 @@ public class ProductService {
                 product.getDescription(),
                 product.getGender().name(),
                 product.getType().name(),
-                product.getPrice(),
                 product.getVariants().stream().map(this::convertToDTO).collect(Collectors.toList()),
                 product.getImages().stream().map(this::convertToDTO).collect(Collectors.toList())
         );
@@ -121,7 +116,6 @@ public class ProductService {
         product.setDescription(productDTO.getDescription());
         product.setGender(getValidGender(productDTO.getGender()));
         product.setType(getValidType(productDTO.getType()));
-        product.setPrice(productDTO.getPrice());
 
         product.setVariants(productDTO.getVariants().stream()
                 .map(this::convertToEntity)
@@ -149,7 +143,7 @@ public class ProductService {
     }
 
     private ProductVariantDTO convertToDTO(ProductVariant variant) {
-        return new ProductVariantDTO(variant.getId(), variant.getSize(), variant.getColor(), variant.getStock(), variant.getProduct().getId());
+        return new ProductVariantDTO(variant.getId(), variant.getSize(), variant.getColor(), variant.getStock(),variant.getPrice(), variant.getProduct().getId());
     }
 
     private ProductVariant convertToEntity(ProductVariantDTO variantDTO) {
@@ -158,6 +152,7 @@ public class ProductService {
         variant.setSize(variantDTO.getSize());
         variant.setColor(variantDTO.getColor());
         variant.setStock(variantDTO.getStock());
+        variant.setPrice(variantDTO.getPrice());
         return variant;
     }
 }

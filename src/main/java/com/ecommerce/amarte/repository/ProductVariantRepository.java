@@ -5,7 +5,10 @@ import org.springframework.stereotype.Repository;
 
 import com.ecommerce.amarte.entity.ProductVariant;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductVariantRepository extends JpaRepository <ProductVariant, Long> {
-    
+    Optional<ProductVariant> findById(Long id);
+
 }

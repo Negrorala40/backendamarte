@@ -37,6 +37,7 @@ public class ProductVariantService {
             updatedProductVariant.setColor(productVariantDetails.getColor());
             updatedProductVariant.setSize(productVariantDetails.getSize());
             updatedProductVariant.setStock(productVariantDetails.getStock());
+            updatedProductVariant.setPrice(productVariantDetails.getPrice()); // Agregado el precio aquí
             updatedProductVariant.setProduct(productVariantDetails.getProduct());
             return productVariantRepository.save(updatedProductVariant);
         } else {

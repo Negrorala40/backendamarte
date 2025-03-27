@@ -41,7 +41,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
 
                         // Permisos autenticados
-                        .requestMatchers(HttpMethod.GET, "/api/cart/add").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/cart/add").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/cart/{userId}").authenticated()
+
 
                         // Permisos para ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")

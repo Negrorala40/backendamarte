@@ -2,6 +2,8 @@ package com.ecommerce.amarte.service;
 
 import java.util.List;
 
+import com.ecommerce.amarte.exception.StockExceededException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,27 +56,22 @@ public class CartItemService {
 
     // Método especializado para agregar un producto al carrito
     public CartItem addProductToCart(Long userId, Long productVariantId, int quantity) {
-        // Verificar que el usuario exista
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
 
-        // Verificar que la variante del producto exista
         ProductVariant productVariant = productVariantRepository.findById(productVariantId)
-                .orElseThrow(() -> new RuntimeException("Variante de producto no encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Variante de producto no encontrada"));
 
         // Verificar que la cantidad no exceda el stock
         if (quantity > productVariant.getStock()) {
-            throw new RuntimeException("Cantidad solicitada excede el stock disponible.");
+            throw new StockExceededException("Cantidad solicitada excede el stock disponible.");
         }
 
-        // Buscar si el producto ya está en el carrito del usuario
         CartItem existingCartItem = cartItemRepository.findByUserAndProductVariant(user, productVariant);
         if (existingCartItem != null) {
-            // Si el producto ya está en el carrito, actualizar la cantidad
             existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
             return cartItemRepository.save(existingCartItem);
         } else {
-            // Si no está en el carrito, crear uno nuevo
             CartItem newCartItem = new CartItem();
             newCartItem.setUser(user);
             newCartItem.setProductVariant(productVariant);
@@ -82,4 +79,5 @@ public class CartItemService {
             return cartItemRepository.save(newCartItem);
         }
     }
+
 }

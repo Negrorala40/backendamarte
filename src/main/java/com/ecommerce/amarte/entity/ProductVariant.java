@@ -2,6 +2,8 @@ package com.ecommerce.amarte.entity;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +25,7 @@ public class ProductVariant {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore // <- evita serializar esto si ya se incluye en otro lugar
     private Product product; // Relación con el producto principal
 
     // Método para reducir stock al comprar un producto

@@ -15,16 +15,28 @@ public class JwtUtil {
     private static final Algorithm ALGORITHM = Algorithm.HMAC256(SECRET_KEY); // Algoritmo de firma
     private static final String ISSUER = "amarte"; // Quién emite el token
 
-    // 🟢 Genera un token con el email y los roles
-    public String create(String email, List<String> roles) {
+    // 🟢 Genera un token con email, userId y roles
+    public String create(String email, Long userId, List<String> roles) {
         return JWT.create()
                 .withSubject(email)
                 .withIssuer(ISSUER)
-                .withClaim("roles", roles) // 🔥 Guardamos los roles como array
+                .withClaim("userId", userId) // ✅ Agrega el userId al token
+                .withClaim("roles", roles)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(15))) // 15 días
+                .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(15)))
                 .sign(ALGORITHM);
     }
+
+    // 🟢 Obtiene el userId desde el token
+    public Long getUserId(String token) {
+        return JWT.require(ALGORITHM)
+                .withIssuer(ISSUER)
+                .build()
+                .verify(token)
+                .getClaim("userId")
+                .asLong(); // ✅ Convertimos el claim a Long
+    }
+
 
     // 🟢 Valida el token
     public boolean isValid(String token) {

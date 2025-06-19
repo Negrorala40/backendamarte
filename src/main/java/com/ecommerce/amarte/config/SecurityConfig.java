@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
@@ -39,11 +40,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/{id}").permitAll()
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/api/bold/signature"),
+                                new AntPathRequestMatcher("/api/public/**")
+                        ).permitAll()
 
                         // Permisos autenticados
                         .requestMatchers(HttpMethod.POST, "/api/cart/add").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/cart/{userId}").authenticated()
-
+                        .requestMatchers(HttpMethod.GET,"/api/users/id/{id}").authenticated()
 
                         // Permisos para ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")

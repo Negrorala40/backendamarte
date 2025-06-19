@@ -58,7 +58,7 @@ public class AuthController {
                     .collect(Collectors.toList());
 
             // 🔥 Generar JWT con email y roles
-            String jwt = jwtUtil.create(user.getEmail(), roles);
+            String jwt = jwtUtil.create(user.getEmail(), user.getId(), roles);
 
             // ✅ Respuesta JSON con datos del usuario
             AuthResponse authResponse = new AuthResponse(user.getId(), roles, jwt);

@@ -1,6 +1,6 @@
 package com.ecommerce.amarte.controller;
 
-import com.ecommerce.amarte.entity.ProductVariant;
+import com.ecommerce.amarte.dto.ProductVariantDTO;
 import com.ecommerce.amarte.service.ProductVariantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,9 +19,9 @@ public class ProductVariantController {
 
     // Crear un nuevo ProductVariant
     @PostMapping
-    public ResponseEntity<ProductVariant> createProductVariant(@RequestBody ProductVariant productVariant) {
+    public ResponseEntity<ProductVariantDTO> createProductVariant(@RequestBody ProductVariantDTO productVariantDTO) {
         try {
-            ProductVariant createdProductVariant = productVariantService.saveProductVariant(productVariant);
+            ProductVariantDTO createdProductVariant = productVariantService.saveProductVariant(productVariantDTO);
             return new ResponseEntity<>(createdProductVariant, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -30,9 +30,9 @@ public class ProductVariantController {
 
     // Obtener todos los ProductVariants
     @GetMapping
-    public ResponseEntity<List<ProductVariant>> getAllProductVariants() {
+    public ResponseEntity<List<ProductVariantDTO>> getAllProductVariants() {
         try {
-            List<ProductVariant> productVariants = productVariantService.getAllProductVariants();
+            List<ProductVariantDTO> productVariants = productVariantService.getAllProductVariants();
             if (productVariants.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
@@ -44,17 +44,17 @@ public class ProductVariantController {
 
     // Obtener un ProductVariant por ID
     @GetMapping("/{id}")
-    public ResponseEntity<ProductVariant> getProductVariantById(@PathVariable Long id) {
-        Optional<ProductVariant> productVariant = productVariantService.getProductVariantById(id);
+    public ResponseEntity<ProductVariantDTO> getProductVariantById(@PathVariable Long id) {
+        Optional<ProductVariantDTO> productVariant = productVariantService.getProductVariantById(id);
         return productVariant.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                             .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     // Actualizar un ProductVariant existente
     @PutMapping("/{id}")
-    public ResponseEntity<ProductVariant> updateProductVariant(@PathVariable Long id, @RequestBody ProductVariant productVariantDetails) {
+    public ResponseEntity<ProductVariantDTO> updateProductVariant(@PathVariable Long id, @RequestBody ProductVariantDTO productVariantDTO) {
         try {
-            ProductVariant updatedProductVariant = productVariantService.updateProductVariant(id, productVariantDetails);
+            ProductVariantDTO updatedProductVariant = productVariantService.updateProductVariant(id, productVariantDTO);
             return new ResponseEntity<>(updatedProductVariant, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

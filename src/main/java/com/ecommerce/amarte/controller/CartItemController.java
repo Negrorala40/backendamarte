@@ -38,18 +38,22 @@ public class CartItemController {
         this.jwtUtil = jwtUtil;
     }
 
-    // ✅ Obtener ítems del carrito a partir del token
+    // Obtener ítems del carrito a partir del token
     @GetMapping
     public ResponseEntity<List<CartItemResponseDTO>> getCartByToken(HttpServletRequest request) {
         String token = extractToken(request);
+        if (token == null) {
+            return ResponseEntity.badRequest().build();
+        }
         Long userId = jwtUtil.getUserId(token);
 
         List<CartItem> cartItems = cartItemRepository.findByUserId(userId);
 
         List<CartItemResponseDTO> response = cartItems.stream().map(item -> {
             ProductVariant variant = item.getProductVariant();
-            if (variant.getProduct() != null) {
-                variant.getProduct().getImages().size();
+            // Forzar carga de imágenes si son lazy (opcional)
+            if (variant.getImages() != null) {
+                variant.getImages().size();
             }
 
             return new CartItemResponseDTO(
@@ -63,16 +67,18 @@ public class CartItemController {
                     variant.getPrice(),
                     variant.getProduct().getId(),
                     variant.getProduct().getName(),
-                    variant.getProduct().getImages().stream()
+                    variant.getImages() != null
+                            ? variant.getImages().stream()
                             .map(img -> img.getImageUrl())
                             .toList()
+                            : List.of()
             );
         }).toList();
 
         return ResponseEntity.ok(response);
     }
 
-    // 🔧 Método reutilizable para extraer el token del header
+    // Método reutilizable para extraer el token del header
     private String extractToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         return authHeader != null && authHeader.startsWith("Bearer ")
@@ -80,8 +86,7 @@ public class CartItemController {
                 : null;
     }
 
-    // Otros métodos (agregar, eliminar, vaciar, actualizar) se quedan igual...
-
+    // Agregar producto al carrito
     @PostMapping("/add")
     public ResponseEntity<Map<String, String>> addToCart(@RequestParam Long userId,
                                                          @RequestParam Long productVariantId,
@@ -99,6 +104,7 @@ public class CartItemController {
         return ResponseEntity.ok(Map.of("message", "Producto agregado al carrito."));
     }
 
+    // Eliminar un ítem del carrito
     @DeleteMapping("/remove/{cartItemId}")
     public ResponseEntity<Map<String, String>> removeCartItem(@PathVariable Long cartItemId) {
         if (!cartItemRepository.existsById(cartItemId)) {
@@ -108,12 +114,14 @@ public class CartItemController {
         return ResponseEntity.ok(Map.of("message", "Producto eliminado del carrito."));
     }
 
+    // Vaciar carrito por usuario
     @DeleteMapping("/clear/{userId}")
     public ResponseEntity<Map<String, String>> clearCart(@PathVariable Long userId) {
         cartItemRepository.deleteByUserId(userId);
         return ResponseEntity.ok(Map.of("message", "Carrito vaciado con éxito."));
     }
 
+    // Actualizar cantidad de un ítem en el carrito
     @PutMapping("/update/{cartItemId}")
     public ResponseEntity<Map<String, String>> updateCartItemQuantity(@PathVariable Long cartItemId,
                                                                       @RequestParam int quantity) {

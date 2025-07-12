@@ -33,6 +33,4 @@ public class ProductDTO {
     @NotNull(message = "Las variantes del producto son obligatorias")
     private List<@NotNull ProductVariantDTO> variants;
 
-    @NotEmpty(message = "Las imágenes del producto no pueden estar vacías")
-    private List<ImgDTO> images;
 }

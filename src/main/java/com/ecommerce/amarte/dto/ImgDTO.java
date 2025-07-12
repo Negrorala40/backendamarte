@@ -24,5 +24,5 @@ public class ImgDTO {
     private String imageUrl;
 
     @NotNull(message = "Debe especificar un producto al que pertenece la imagen")
-    private Long productId; // ID del producto asociado
+    private Long productVariantId;
 }

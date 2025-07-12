@@ -19,6 +19,7 @@ public class Img {
     private String imageUrl; // Tipo de archivo (ej. image/jpeg, image/png)
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false) // Definimos el nombre de la columna que hace referencia a Product
-    private Product product; // Relación con el Producto
+    @JoinColumn(name = "product_variant_id")
+    private ProductVariant productVariant;
+
 }

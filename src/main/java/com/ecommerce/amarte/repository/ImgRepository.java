@@ -8,7 +8,6 @@ import com.ecommerce.amarte.entity.Img;
 
 @Repository
 public interface ImgRepository extends JpaRepository <Img, Long> {
-       List<Img> findByProductId(Long productId);
-       // List<Img> deleteByProductId(Long productId);
+       List<Img> findByProductVariantId(Long productVariantId);
 
 }

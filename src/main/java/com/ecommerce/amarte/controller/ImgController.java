@@ -19,35 +19,41 @@ public class ImgController {
     @Autowired
     private ImgService imgService;
 
-    @PostMapping("/upload/{productId}")
+    // Subir imagen asociada a un ProductVariant
+    @PostMapping("/upload/{productVariantId}")
     public ResponseEntity<Img> uploadImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam("imageUrl") String imageUrl,
-            @PathVariable Long productId) {
+            @PathVariable Long productVariantId) {
         try {
-            Img savedImage = imgService.saveImage(file, imageUrl, productId);
+            Img savedImage = imgService.saveImage(file, imageUrl, productVariantId);
             return ResponseEntity.ok(savedImage);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-
-    // Obtener imagen por ID
+    // Obtener imagen por ID (retorna URL)
     @GetMapping("/{id}")
     public ResponseEntity<String> getImage(@PathVariable Long id) {
         Img img = imgService.getImageById(id);
-        return ResponseEntity.ok(img.getImageUrl()); // Retorna la URL en lugar de bytes
+        if (img == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(img.getImageUrl());
     }
 
-    // Obtener imágenes de un producto
-    @GetMapping("/product/{productId}")
-    public ResponseEntity<List<Img>> getImagesByProduct(@PathVariable Long productId) {
-        List<Img> images = imgService.getImagesByProductId(productId);
+    // Obtener imágenes de un ProductVariant
+    @GetMapping("/product-variant/{productVariantId}")
+    public ResponseEntity<List<Img>> getImagesByProductVariant(@PathVariable Long productVariantId) {
+        List<Img> images = imgService.getImagesByProductVariantId(productVariantId);
+        if (images == null || images.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(images);
     }
 
-    // Actualizar imagen
+    // Actualizar imagen (por ID)
     @PutMapping("/{id}")
     public ResponseEntity<Img> updateImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         try {
@@ -58,7 +64,7 @@ public class ImgController {
         }
     }
 
-    // Eliminar imagen
+    // Eliminar imagen por ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteImage(@PathVariable Long id) {
         imgService.deleteImage(id);

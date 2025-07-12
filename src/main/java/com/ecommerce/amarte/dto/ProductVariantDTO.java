@@ -1,14 +1,12 @@
 package com.ecommerce.amarte.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -33,4 +31,7 @@ public class ProductVariantDTO {
 
     @NotNull(message = "error productid")
     private Long productId;
+
+    @NotEmpty(message = "Las imágenes del producto no pueden estar vacías")
+    private List<ImgDTO> images;
 }

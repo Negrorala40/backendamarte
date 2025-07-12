@@ -6,15 +6,14 @@ import com.ecommerce.amarte.dto.ProductVariantDTO;
 import com.ecommerce.amarte.entity.Img;
 import com.ecommerce.amarte.entity.Product;
 import com.ecommerce.amarte.entity.ProductGender;
-import com.ecommerce.amarte.entity.ProductVariant;
 import com.ecommerce.amarte.entity.ProductType;
+import com.ecommerce.amarte.entity.ProductVariant;
 import com.ecommerce.amarte.exception.InvalidProductDataException;
 import com.ecommerce.amarte.exception.ProductNotFoundException;
 import com.ecommerce.amarte.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,11 +58,6 @@ public class ProductService {
                 .peek(variant -> variant.setProduct(product))
                 .collect(Collectors.toList()));
 
-        product.setImages(productDTO.getImages().stream()
-                .map(this::convertToEntity)
-                .peek(img -> img.setProduct(product))
-                .collect(Collectors.toList()));
-
         Product updatedProduct = productRepository.save(product);
         return convertToDTO(updatedProduct);
     }
@@ -104,10 +98,10 @@ public class ProductService {
                 product.getDescription(),
                 product.getGender().name(),
                 product.getType().name(),
-                product.getVariants().stream().map(this::convertToDTO).collect(Collectors.toList()),
-                product.getImages().stream().map(this::convertToDTO).collect(Collectors.toList())
+                product.getVariants().stream().map(this::convertToDTO).collect(Collectors.toList())
         );
     }
+
 
     private Product convertToEntity(ProductDTO productDTO) {
         Product product = new Product();
@@ -122,28 +116,21 @@ public class ProductService {
                 .peek(variant -> variant.setProduct(product))
                 .collect(Collectors.toList()));
 
-        product.setImages(productDTO.getImages().stream()
-                .map(this::convertToEntity)
-                .peek(img -> img.setProduct(product))
-                .collect(Collectors.toList()));
-
         return product;
     }
 
-    private ImgDTO convertToDTO(Img img) {
-        return new ImgDTO(img.getId(), img.getFileName(), img.getImageUrl(), img.getProduct().getId());
-    }
-
-    private Img convertToEntity(ImgDTO imgDTO) {
-        Img img = new Img();
-        img.setId(imgDTO.getId());
-        img.setFileName(imgDTO.getFileName());
-        img.setImageUrl(imgDTO.getImageUrl());
-        return img;
-    }
-
     private ProductVariantDTO convertToDTO(ProductVariant variant) {
-        return new ProductVariantDTO(variant.getId(), variant.getSize(), variant.getColor(), variant.getStock(),variant.getPrice(), variant.getProduct().getId());
+        return new ProductVariantDTO(
+                variant.getId(),
+                variant.getSize(),
+                variant.getColor(),
+                variant.getStock(),
+                variant.getPrice(),
+                variant.getProduct().getId(),
+                variant.getImages() != null
+                        ? variant.getImages().stream().map(this::convertToDTO).collect(Collectors.toList())
+                        : null
+        );
     }
 
     private ProductVariant convertToEntity(ProductVariantDTO variantDTO) {
@@ -153,6 +140,31 @@ public class ProductService {
         variant.setColor(variantDTO.getColor());
         variant.setStock(variantDTO.getStock());
         variant.setPrice(variantDTO.getPrice());
+
+        if (variantDTO.getImages() != null) {
+            variant.setImages(variantDTO.getImages().stream()
+                    .map(this::convertToEntity)
+                    .peek(img -> img.setProductVariant(variant))
+                    .collect(Collectors.toList()));
+        }
+
         return variant;
+    }
+
+    private ImgDTO convertToDTO(Img img) {
+        return new ImgDTO(
+                img.getId(),
+                img.getFileName(),
+                img.getImageUrl(),
+                img.getProductVariant() != null ? img.getProductVariant().getId() : null
+        );
+    }
+
+    private Img convertToEntity(ImgDTO imgDTO) {
+        Img img = new Img();
+        img.setId(imgDTO.getId());
+        img.setFileName(imgDTO.getFileName());
+        img.setImageUrl(imgDTO.getImageUrl());
+        return img;
     }
 }

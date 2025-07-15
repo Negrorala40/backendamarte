@@ -122,8 +122,8 @@ public class ProductService {
     private ProductVariantDTO convertToDTO(ProductVariant variant) {
         return new ProductVariantDTO(
                 variant.getId(),
-                variant.getSize(),
                 variant.getColor(),
+                variant.getSize(),
                 variant.getStock(),
                 variant.getPrice(),
                 variant.getProduct().getId(),
